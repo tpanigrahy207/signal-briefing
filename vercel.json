@@ -1,5 +1,4 @@
 {
-  "nodeVersion": "24.x",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ]
