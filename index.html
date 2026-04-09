@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Signal Briefing — Enterprise AI Intel</title>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Playfair+Display:wght@400;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #09090f;
+      --surface: #0f1117;
+      --surface2: #141820;
+      --border: #1e2530;
+      --border2: #2a3340;
+      --text: #e2e0dc;
+      --text2: #8b929e;
+      --text3: #4a5260;
+      --gold: #d4a853;
+      --gold-bg: rgba(212,168,83,0.1);
+      --blue: #38bdf8;
+      --blue-bg: rgba(56,189,248,0.08);
+      --green: #4ade80;
+      --green-bg: rgba(74,222,128,0.08);
+      --purple: #a78bfa;
+      --purple-bg: rgba(167,139,250,0.08);
+      --orange: #fb923c;
+      --orange-bg: rgba(251,146,60,0.08);
+      --red: #f87171;
+      --red-bg: rgba(248,113,113,0.08);
+      --radius: 6px;
+      --radius-lg: 10px;
+    }
+
+    html, body { background: var(--bg); color: var(--text); font-family: 'Manrope', sans-serif; min-height: 100vh; }
+
+    #root { max-width: 780px; margin: 0 auto; padding: 40px 24px 80px; }
+
+    /* Header */
+    .header { border-bottom: 1px solid var(--border); padding-bottom: 20px; margin-bottom: 28px; }
+    .header-top { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+    .site-name { font-family: 'Playfair Display', serif; font-size: 22px; color: var(--text); }
+    .site-sub { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--gold); letter-spacing: 2px; text-transform: uppercase; }
+    .header-date { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); }
+    .header-desc { font-size: 13px; color: var(--text2); line-height: 1.6; max-width: 520px; }
+
+    /* Feeds */
+    .feeds-section { margin-bottom: 20px; }
+    .feeds-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 10px; }
+    .feeds-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+    .feed-pill {
+      font-family: 'JetBrains Mono', monospace; font-size: 10px;
+      padding: 4px 10px; border-radius: var(--radius);
+      border: 1px solid var(--border); color: var(--text3);
+      display: flex; align-items: center; gap: 5px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .feed-pill.loading { border-color: var(--blue); color: var(--blue); }
+    .feed-pill.done { border-color: var(--green); color: var(--green); }
+    .feed-pill.error { border-color: var(--red); color: var(--red); }
+    .feed-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .feed-dot.pulsing { animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+    /* Run button */
+    .run-btn {
+      background: var(--gold); color: #09090f;
+      border: none; padding: 11px 28px;
+      font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 500;
+      letter-spacing: 1.5px; text-transform: uppercase;
+      cursor: pointer; border-radius: var(--radius);
+      transition: opacity 0.15s; margin-bottom: 14px;
+    }
+    .run-btn:hover { opacity: 0.88; }
+    .run-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+
+    /* Status */
+    .status-line { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--blue); min-height: 18px; margin-bottom: 8px; }
+
+    /* Metrics */
+    .metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-bottom: 28px; }
+    .metric { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; }
+    .metric-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 6px; }
+    .metric-value { font-family: 'Playfair Display', serif; font-size: 28px; color: var(--gold); }
+
+    /* Section label */
+    .sec-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 12px; margin-top: 4px; }
+
+    /* Signal cards */
+    .signal-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 14px 16px; margin-bottom: 10px; transition: border-color 0.15s; }
+    .signal-card:hover { border-color: var(--border2); }
+    .signal-meta { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 8px; }
+    .badge { font-family: 'JetBrains Mono', monospace; font-size: 9px; font-weight: 500; padding: 2px 7px; border-radius: 3px; text-transform: uppercase; letter-spacing: 0.3px; }
+    .badge-high { background: var(--gold-bg); color: var(--gold); }
+    .badge-med { background: var(--green-bg); color: var(--green); }
+    .badge-low { background: var(--surface2); color: var(--text3); }
+    .badge-gov { background: var(--purple-bg); color: var(--purple); }
+    .badge-agentic { background: var(--blue-bg); color: var(--blue); }
+    .badge-market { background: var(--orange-bg); color: var(--orange); }
+    .badge-consulting { background: var(--green-bg); color: var(--green); }
+    .badge-platform { background: var(--blue-bg); color: var(--blue); }
+    .signal-source { font-family: 'JetBrains Mono', monospace; font-size: 9px; color: var(--text3); }
+    .signal-headline { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--text); margin-bottom: 5px; line-height: 1.4; }
+    .signal-why { font-size: 13px; color: var(--text2); line-height: 1.55; }
+
+    /* Divider */
+    .divider { border: none; border-top: 1px solid var(--border); margin: 24px 0; }
+
+    /* Insight cards */
+    .insight-card { background: var(--surface); border: 1px solid var(--border); padding: 14px 16px; margin-bottom: 10px; border-radius: 0 var(--radius-lg) var(--radius-lg) 0; }
+    .insight-card.dots { border-left: 2px solid var(--purple); }
+    .insight-card.opp { border-left: 2px solid var(--green); }
+    .insight-text { font-size: 14px; color: var(--text2); line-height: 1.65; }
+
+    /* Error */
+    .error-box { background: var(--red-bg); border: 1px solid var(--red); border-radius: var(--radius); padding: 10px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--red); margin-top: 8px; }
+
+    /* Footer */
+    .footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--border); font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); display: flex; justify-content: space-between; }
+
+    @media (max-width: 520px) {
+      #root { padding: 24px 16px 60px; }
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .header-top { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback } = React;
+
+const FEEDS = [
+  { name: "ServiceNow blog",    url: "https://www.servicenow.com/blog/feed" },
+  { name: "The AI Economy",     url: "https://theaieconomy.substack.com/feed" },
+  { name: "VentureBeat AI",     url: "https://venturebeat.com/category/ai/feed/" },
+  { name: "Diginomica",         url: "https://diginomica.com/feed" },
+  { name: "The New Stack",      url: "https://thenewstack.io/feed/" },
+];
+
+const R2J = "https://api.rss2json.com/v1/api.json?num=5&rss_url=";
+
+const ANGLE_CLASS = {
+  GOVERNANCE: "badge-gov",
+  AGENTIC: "badge-agentic",
+  MARKET: "badge-market",
+  CONSULTING: "badge-consulting",
+  PLATFORM: "badge-platform",
+};
+
+const PRIORITY_CLASS = {
+  HIGH: "badge-high",
+  MEDIUM: "badge-med",
+  LOW: "badge-low",
+};
+
+function App() {
+  const [phase, setPhase] = useState("idle");
+  const [feedState, setFeedState] = useState({});
+  const [statusMsg, setStatusMsg] = useState("");
+  const [briefing, setBriefing] = useState(null);
+  const [rawCount, setRawCount] = useState(0);
+  const [error, setError] = useState(null);
+
+  const today = new Date().toLocaleDateString("en-US", {
+    weekday: "long", year: "numeric", month: "long", day: "numeric"
+  });
+
+  const setFeed = (name, state) =>
+    setFeedState(prev => ({ ...prev, [name]: state }));
+
+  const run = useCallback(async () => {
+    setPhase("fetching");
+    setBriefing(null);
+    setError(null);
+    setFeedState({});
+    setStatusMsg("Fetching feeds...");
+
+    const items = [];
+
+    for (const feed of FEEDS) {
+      setFeed(feed.name, "loading");
+      try {
+        const r = await fetch(R2J + encodeURIComponent(feed.url));
+        const d = await r.json();
+        if (d.status === "ok" && d.items?.length) {
+          d.items.slice(0, 5).forEach(i => items.push({
+            source: feed.name,
+            title: i.title || "",
+            desc: (i.description || "").replace(/<[^>]*>/g, "").slice(0, 200),
+            date: i.pubDate || ""
+          }));
+          setFeed(feed.name, "done");
+        } else {
+          setFeed(feed.name, "error");
+        }
+      } catch {
+        setFeed(feed.name, "error");
+      }
+    }
+
+    setRawCount(items.length);
+    setPhase("analyzing");
+    setStatusMsg(`Analyzing ${items.length} items through your lens...`);
+
+    try {
+      const res = await fetch("/api/briefing", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ items })
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || `HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      setBriefing(data);
+      setPhase("done");
+      setStatusMsg("");
+    } catch (e) {
+      setError(e.message);
+      setPhase("error");
+      setStatusMsg("");
+    }
+  }, []);
+
+  const busy = phase === "fetching" || phase === "analyzing";
+
+  return (
+    <div>
+      <div className="header">
+        <div className="header-top">
+          <span className="site-name">Signal Briefing</span>
+          <span className="site-sub">Enterprise AI Intel</span>
+        </div>
+        <div className="header-date" style={{ marginBottom: 10 }}>{today}</div>
+        <p className="header-desc">
+          Pulls the last 24 hours from five curated enterprise AI sources. Filters and analyzes through a ServiceNow governance and consulting lens.
+        </p>
+      </div>
+
+      <div className="feeds-section">
+        <div className="feeds-label">Sources</div>
+        <div className="feeds-grid">
+          {FEEDS.map(f => {
+            const s = feedState[f.name];
+            return (
+              <span key={f.name} className={`feed-pill ${s || ""}`}>
+                <span className={`feed-dot ${s === "loading" ? "pulsing" : ""}`} />
+                {f.name}
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      <button className="run-btn" onClick={run} disabled={busy}>
+        {busy ? "Running..." : phase === "done" ? "↻ Refresh" : "▶ Run today's briefing"}
+      </button>
+
+      <div className="status-line">{statusMsg}</div>
+
+      {error && <div className="error-box">Error: {error}</div>}
+
+      {briefing && (
+        <>
+          <div className="metrics">
+            {[
+              { label: "Signal score", value: `${briefing.signal_score}/10` },
+              { label: "Signals found", value: briefing.signals?.length ?? 0 },
+              { label: "Items scanned", value: rawCount },
+            ].map(m => (
+              <div className="metric" key={m.label}>
+                <div className="metric-label">{m.label}</div>
+                <div className="metric-value">{m.value}</div>
+              </div>
+            ))}
+          </div>
+
+          <div className="sec-label">Today's signals</div>
+          {briefing.signals?.map((s, i) => (
+            <div className="signal-card" key={i}>
+              <div className="signal-meta">
+                <span className={`badge ${PRIORITY_CLASS[s.priority] || "badge-low"}`}>{s.priority}</span>
+                <span className={`badge ${ANGLE_CLASS[s.angle] || "badge-gov"}`}>{s.angle}</span>
+                <span className="signal-source">{s.source}</span>
+              </div>
+              <div className="signal-headline">{s.headline}</div>
+              <div className="signal-why">{s.why_it_matters}</div>
+            </div>
+          ))}
+
+          <hr className="divider" />
+
+          <div className="sec-label">Connect the dots</div>
+          <div className="insight-card dots">
+            <div className="insight-text">{briefing.connect_the_dots}</div>
+          </div>
+
+          <div className="sec-label">Content opportunity</div>
+          <div className="insight-card opp">
+            <div className="insight-text">{briefing.content_opportunity}</div>
+          </div>
+        </>
+      )}
+
+      <div className="footer">
+        <span>the-agentic-enterprise.com</span>
+        <span>Powered by Gemini 2.0 Flash · rss2json</span>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
