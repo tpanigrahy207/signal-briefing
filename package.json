@@ -3,6 +3,6 @@
   "version": "1.0.0",
   "description": "Enterprise AI signal briefing tool — daily intel filtered through a ServiceNow and AI governance lens",
   "engines": {
-    "node": "18.x"
+    "node": "24.x"
   }
 }
